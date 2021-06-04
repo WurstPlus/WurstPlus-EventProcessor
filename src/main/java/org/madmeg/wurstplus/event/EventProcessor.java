@@ -72,9 +72,9 @@ public class EventProcessor {
      */
     public boolean postEvent(Event event) {
         for (Method method : getEventMap().keySet()) {
-            Pair<Object, Class<?>> pair = getEventMap().get(method);
             EventPriority priority = getPriority(method);
             if(priority == EventPriority.HIGH) {
+                Pair<Object, Class<?>> pair = getEventMap().get(method);
                 if (pair.getValue() == event.getClass()) {
                     try {
                         method.setAccessible(true);
@@ -87,9 +87,9 @@ public class EventProcessor {
             }
         }
         for (Method method : getEventMap().keySet()) {
-            Pair<Object, Class<?>> pair = getEventMap().get(method);
             EventPriority priority = getPriority(method);
             if(priority == EventPriority.NONE) {
+                Pair<Object, Class<?>> pair = getEventMap().get(method);
                 if (pair.getValue() == event.getClass()) {
                     try {
                         method.setAccessible(true);
@@ -102,9 +102,9 @@ public class EventProcessor {
             }
         }
         for (Method method : getEventMap().keySet()) {
-            Pair<Object, Class<?>> pair = getEventMap().get(method);
             EventPriority priority = getPriority(method);
             if(priority == EventPriority.LOW) {
+                Pair<Object, Class<?>> pair = getEventMap().get(method);
                 if (pair.getValue() == event.getClass()) {
                     try {
                         method.setAccessible(true);
