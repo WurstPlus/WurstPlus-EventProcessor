@@ -54,15 +54,7 @@ public class EventProcessor {
                     throw new IllegalArgumentException("Method " + method + " doesnt have any event parameters only non event parameters");
                 }
                 Pair<Object, Class<?>> pair = new Pair<>(object, eventType);
-                if (getPriority(method) == EventPriority.HIGH) {
-                    HashMap<Method, Pair<Object, Class<?>>> tempMap = new HashMap<>();
-                    tempMap.put(method, pair);
-                    tempMap.putAll(this.eventMap);
-                    this.eventMap.clear();
-                    this.eventMap.putAll(tempMap);
-                } else {
-                    this.eventMap.put(method, pair);
-                }
+                this.eventMap.put(method, pair);
             }
         }
     }
@@ -81,13 +73,46 @@ public class EventProcessor {
     public boolean postEvent(Event event) {
         for (Method method : getEventMap().keySet()) {
             Pair<Object, Class<?>> pair = getEventMap().get(method);
-            if (pair.getValue() == event.getClass()) {
-                try {
-                    method.setAccessible(true);
-                    method.invoke(pair.getKey(), event);
-                } catch (Exception e) {
-                    System.out.println(e);
-                    return false;
+            EventPriority priority = getPriority(method);
+            if(priority == EventPriority.HIGH) {
+                if (pair.getValue() == event.getClass()) {
+                    try {
+                        method.setAccessible(true);
+                        method.invoke(pair.getKey(), event);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                        return false;
+                    }
+                }
+            }
+        }
+        for (Method method : getEventMap().keySet()) {
+            Pair<Object, Class<?>> pair = getEventMap().get(method);
+            EventPriority priority = getPriority(method);
+            if(priority == EventPriority.NONE) {
+                if (pair.getValue() == event.getClass()) {
+                    try {
+                        method.setAccessible(true);
+                        method.invoke(pair.getKey(), event);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                        return false;
+                    }
+                }
+            }
+        }
+        for (Method method : getEventMap().keySet()) {
+            Pair<Object, Class<?>> pair = getEventMap().get(method);
+            EventPriority priority = getPriority(method);
+            if(priority == EventPriority.LOW) {
+                if (pair.getValue() == event.getClass()) {
+                    try {
+                        method.setAccessible(true);
+                        method.invoke(pair.getKey(), event);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                        return false;
+                    }
                 }
             }
         }

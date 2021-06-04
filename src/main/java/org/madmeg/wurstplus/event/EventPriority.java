@@ -7,5 +7,6 @@ package org.madmeg.wurstplus.event;
 
 public enum EventPriority {
     HIGH,
-    LOW,
+    NONE,
+    LOW
 }
