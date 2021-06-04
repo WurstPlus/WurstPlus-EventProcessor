@@ -1,9 +1,5 @@
 package org.madmeg.wurstplus.event;
 
-import javafx.util.Pair;
-import org.madmeg.wurstplus.event.CommitEvent;
-import org.madmeg.wurstplus.event.Event;
-import org.madmeg.wurstplus.event.EventPriority;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
