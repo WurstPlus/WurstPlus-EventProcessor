@@ -48,4 +48,7 @@ public class EventStage extends Event {
 }
 ```
 
+Make sure to initialize the EventProcessor class. When you want to add a new event to listen
+for make sure to post the event `WurstplusThree.EVENT_PROCESSOR.postEvent(event);`!
+
 For any more help loot at Wurst Plus 3 [Source](https://github.com/WurstPlus/wurst-plus-three), or dm me on discord Madmeg#4882
