@@ -55,8 +55,30 @@ public class EventProcessor {
                 }
                 Pair<Object, Class<?>> pair = new Pair<>(object, eventType);
                 this.eventMap.put(method, pair);
+                this.eventMap.clear();
+                this.eventMap.putAll(sortMap(this.eventMap));
             }
         }
+    }
+
+    private HashMap<Method, Pair<Object, Class<?>>> sortMap(HashMap<Method, Pair<Object, Class<?>>> map) {
+        HashMap<Method, Pair<Object, Class<?>>> finalMap = new HashMap<>();
+        HashMap<Method, Pair<Object, Class<?>>> high = new HashMap<>();
+        HashMap<Method, Pair<Object, Class<?>>> none = new HashMap<>();
+        HashMap<Method, Pair<Object, Class<?>>> low = new HashMap<>();
+        for (Method method : map.keySet()) {
+            if (getPriority(method) == EventPriority.HIGH) {
+                high.put(method, map.get(method));
+            } else if (getPriority(method) == EventPriority.LOW) {
+                low.put(method, map.get(method));
+            } else {
+                none.put(method, map.get(method));
+            }
+        }
+        finalMap.putAll(high);
+        finalMap.putAll(none);
+        finalMap.putAll(low);
+        return finalMap;
     }
 
     /**
@@ -73,46 +95,14 @@ public class EventProcessor {
     public boolean postEvent(Event event) {
         for (Method method : getEventMap().keySet()) {
             EventPriority priority = getPriority(method);
-            if(priority == EventPriority.HIGH) {
-                Pair<Object, Class<?>> pair = getEventMap().get(method);
-                if (pair.getValue() == event.getClass()) {
-                    try {
-                        method.setAccessible(true);
-                        method.invoke(pair.getKey(), event);
-                    } catch (Exception e) {
-                        System.out.println(e);
-                        return false;
-                    }
-                }
-            }
-        }
-        for (Method method : getEventMap().keySet()) {
-            EventPriority priority = getPriority(method);
-            if(priority == EventPriority.NONE) {
-                Pair<Object, Class<?>> pair = getEventMap().get(method);
-                if (pair.getValue() == event.getClass()) {
-                    try {
-                        method.setAccessible(true);
-                        method.invoke(pair.getKey(), event);
-                    } catch (Exception e) {
-                        System.out.println(e);
-                        return false;
-                    }
-                }
-            }
-        }
-        for (Method method : getEventMap().keySet()) {
-            EventPriority priority = getPriority(method);
-            if(priority == EventPriority.LOW) {
-                Pair<Object, Class<?>> pair = getEventMap().get(method);
-                if (pair.getValue() == event.getClass()) {
-                    try {
-                        method.setAccessible(true);
-                        method.invoke(pair.getKey(), event);
-                    } catch (Exception e) {
-                        System.out.println(e);
-                        return false;
-                    }
+            Pair<Object, Class<?>> pair = getEventMap().get(method);
+            if (pair.getValue() == event.getClass()) {
+                try {
+                    method.setAccessible(true);
+                    method.invoke(pair.getKey(), event);
+                } catch (Exception e) {
+                    System.out.println(e);
+                    return false;
                 }
             }
         }
