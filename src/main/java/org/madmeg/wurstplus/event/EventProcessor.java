@@ -3,7 +3,8 @@ package org.madmeg.wurstplus.event;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Madmegsox1
@@ -12,10 +13,10 @@ import java.util.HashMap;
 
 public class EventProcessor {
 
-    private final HashMap<Method, Pair<Object, Class<?>>> eventMap;
+    private final List<Listener> events;
 
     public EventProcessor() {
-        eventMap = new HashMap<>();
+        events = new ArrayList<>();
     }
 
     /**
@@ -27,14 +28,14 @@ public class EventProcessor {
     }
 
     public void removeEventListener(Object object) {
-        ArrayList<Method> toRemove = new ArrayList<>();
-        for (Method method : eventMap.keySet()) {
-            if (object == eventMap.get(method).getKey()) {
-                toRemove.add(method);
+        List<Listener> toRemove = new ArrayList<>();
+        for(Listener listener : events){
+            if(object == listener.object){
+                toRemove.add(listener);
             }
         }
-        for (Method method : toRemove) {
-            eventMap.remove(method);
+        for (Listener listener : toRemove) {
+            events.remove(listener);
         }
     }
 
@@ -49,43 +50,13 @@ public class EventProcessor {
                 if (prams.length != 1) {
                     throw new IllegalArgumentException("Method " + method + " doesnt have any event parameters");
                 }
-                Class<?> eventType = prams[0];
-                if (!Event.class.isAssignableFrom(eventType)) {
+                if (!Event.class.isAssignableFrom(prams[0])) {
                     throw new IllegalArgumentException("Method " + method + " doesnt have any event parameters only non event parameters");
                 }
-                Pair<Object, Class<?>> pair = new Pair<>(object, eventType);
-                this.eventMap.put(method, pair);
-                this.eventMap.clear();
-                this.eventMap.putAll(sortMap(this.eventMap));
+                this.events.add(new Listener(method, object, prams[0], getPriority(method)));
+                this.events.sort(Comparator.comparing(o -> o.priority));
             }
         }
-    }
-
-    private HashMap<Method, Pair<Object, Class<?>>> sortMap(HashMap<Method, Pair<Object, Class<?>>> map) {
-        HashMap<Method, Pair<Object, Class<?>>> finalMap = new HashMap<>();
-        HashMap<Method, Pair<Object, Class<?>>> high = new HashMap<>();
-        HashMap<Method, Pair<Object, Class<?>>> none = new HashMap<>();
-        HashMap<Method, Pair<Object, Class<?>>> low = new HashMap<>();
-        for (Method method : map.keySet()) {
-            if (getPriority(method) == EventPriority.HIGH) {
-                high.put(method, map.get(method));
-            } else if (getPriority(method) == EventPriority.LOW) {
-                low.put(method, map.get(method));
-            } else {
-                none.put(method, map.get(method));
-            }
-        }
-        finalMap.putAll(high);
-        finalMap.putAll(none);
-        finalMap.putAll(low);
-        return finalMap;
-    }
-
-    /**
-     * @return the event map
-     */
-    public HashMap<Method, Pair<Object, Class<?>>> getEventMap() {
-        return eventMap;
     }
 
     /**
@@ -93,13 +64,12 @@ public class EventProcessor {
      * @return if the event was posted or not at a boolean
      */
     public boolean postEvent(Event event) {
-        for (Method method : getEventMap().keySet()) {
-            EventPriority priority = getPriority(method);
-            Pair<Object, Class<?>> pair = getEventMap().get(method);
-            if (pair.getValue() == event.getClass()) {
+
+        for (Listener listener : events){
+            if(listener.event == event.getClass()){
                 try {
-                    method.setAccessible(true);
-                    method.invoke(pair.getKey(), event);
+                    listener.method.setAccessible(true);
+                    listener.method.invoke(listener.object, event);
                 } catch (Exception e) {
                     System.out.println(e);
                     return false;
