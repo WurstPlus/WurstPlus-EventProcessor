@@ -9,10 +9,10 @@ import java.lang.reflect.Method;
  */
 
 public class Listener {
-    Method method;
-    Object object;
-    Class<?> event;
-    EventPriority priority;
+    public final Method method;
+    public final Object object;
+    public final Class<?> event;
+    public final EventPriority priority;
 
     public Listener(Method method, Object object, Class<?> event, EventPriority priority){
         this.method = method;
