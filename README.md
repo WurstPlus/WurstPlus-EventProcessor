@@ -1,6 +1,8 @@
 # WurstPlus-EventProcessor
 A lightweight Event Processor for Java
 
+Speeds up to `~5 nano seconds` for high priority events
+
 ## How to use the EventProcessor
 
 
